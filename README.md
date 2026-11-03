@@ -1,45 +1,40 @@
 # Palmer Penguins — PRDL and MLLB
 
-A gradual, English-language introduction to classical machine learning. The priority is explaining what the data, fitting and evaluation mean, rather than maximising a score.
+A small, didactic classical machine-learning project. The priority is understanding data, fitting, hyperparameter selection and evaluation.
 
 ## Read and run
 
-1. [Understanding and EDA](01_understanding_and_eda.ipynb): data source, variables, missing values, distributions and relationships in training data.
-2. [Supervised learning](02_supervised_learning.ipynb): classification, regression and a small tree-depth search, with explanations, formulas and visible training code.
+1. [Understanding and EDA](01_understanding_and_eda.ipynb): variables, data quality, distributions, correlations and Simpson's paradox.
+2. [Supervised learning](02_supervised_learning.ipynb): initial fixed models, regression, KNN and Random Forest, nested validation, final test and uncertainty.
+3. [Unsupervised learning](03_unsupervised_learning.ipynb): standardisation, PCA and K-means; species is used only after fitting for interpretation.
 
-Download the repository files. Each notebook runs independently on CPU in Google Colab or VS Code/Jupyter. In Colab, open the notebook using the upload option and run all cells from the top; upload the original `penguins.csv` when prompted. The file stays in temporary runtime storage. No whole-Drive access is needed. In VS Code/Jupyter, place the CSV in the working directory.
+Each notebook runs independently on CPU in Colab or VS Code/Jupyter. Download the files. In Colab upload a notebook, run from the top and upload the unchanged penguins.csv when prompted. In Jupyter place the CSV in the working directory. Libraries: pandas, NumPy, Matplotlib, scikit-learn and SciPy. Runtime versions are printed. Saved outputs do not recreate variables after a restart.
 
-The libraries are Python, pandas, NumPy, Matplotlib and scikit-learn. The notebooks print the runtime versions used. Restarting the runtime removes its variables: saved outputs do not replace running earlier cells.
+## Verified ML study — 3 November 2026
 
-## Intermediate submission — 1 November 2026
+The unchanged source has 344 observations and eight columns. A fixed species-stratified 80/20 split, seed 42, gives 275 development and 69 test observations. Complete-measurement development views use 273 rows; source rows 3 and 271 are excluded from those views only. Missing sex excludes no otherwise usable row. No values or extremes are changed.
 
-The source contains 344 observations and eight variables. A fixed 80/20 species-stratified allocation (seed 42) gives 275 development and 69 reserved final-test observations. Complete-input/response training views contain 273 rows, excluding source IDs 3 and 271 only from those views. Nine otherwise eligible rows with missing sex remain. No CSV value or recorded extreme is removed or imputed.
+Initial fixed comparisons and a limited depth search remain labelled development exercises. The extension uses five outer stratified folds and three inner stratified folds to select settings inside assessment. All scaling stays in pipelines. Small fixed searches compare logistic regression, linear SVM, a decision tree, KNN and a 100-tree Random Forest. Regression compares a median reference and untuned OLS using a separate five-fold KFold list.
 
-Classification uses four physical inputs and five saved stratified folds. Regression predicts body mass from the other three inputs and uses a separate five-fold KFold list. Both are shuffled with seed 42; any scaling is learned inside fit folds. No reserved-test eligibility, distribution or score is used for development. Prior whole-table ingestion checks are disclosed.
+| Procedure | Mean external-fold macro-F1 |
+|---|---:|
+| Logistic regression | 0.9812 |
+| Linear SVM | 0.9815 |
+| Decision tree | 0.9052 |
+| KNN | 0.9812 |
+| Random Forest | 0.9483 |
 
-| Fixed method | OOF accuracy | Mean species F1 |
-|---|---:|---:|
-| Majority reference | 0.4432 | 0.2047 |
-| Logistic regression | 0.9853 | 0.9820 |
-| Depth-3 tree | 0.9231 | 0.9079 |
-| Linear SVM | 0.9853 | 0.9820 |
+Small differences do not show superiority among leading families. The pre-test rule selected linear SVM by highest mean external-fold F1; a three-fold development search then chose C=10. Development was already explored; nested CV does not erase that history. Test rows never enter fitting or selection.
 
-Mean species F1 is macro-F1. Logistic and SVM give the same held-out predictions. The limited tree search compares depths 2/3/4/5 with minimum leaf size 5, selecting by mean fold macro-F1. Depths 4/5 tie at 0.9137, so 4 is selected. That selection score is not an independent estimate and does not replace the fixed-model table. GridSearchCV performs 20 sequential fits with `refit=False`; there is no final fitted selected model or test score.
+All 69 test rows meet the eligibility rule. Final SVM accuracy is 68/69 (98.55%), macro-F1 0.9829; the majority reference is 30/69 (43.48%). The SVM Wilson 95% accuracy interval is 92.24–99.74%. A single pre-specified exact McNemar comparison against the majority reference uses 39/1 discordant pairs, p=7.46e-11. This does not compare SVM against logistic/KNN or test equal macro-F1.
 
-| Regression method | OOF MAE (g) | OOF RMSE (g) | OOF R-squared |
-|---|---:|---:|---:|
-| Fit-median reference | 679.17 | 823.48 | -0.048 |
-| Ordinary least squares | 325.46 | 408.10 | 0.743 |
+OLS test MAE is 276.83 g, RMSE 348.58 g and R-squared 0.803, versus median-reference MAE 644.57 g. A 5,000-resample paired row bootstrap, seed 42, gives a percentile 95% OLS-MAE interval of 228.37–326.65 g and a reference-minus-OLS MAE interval of 249.68–484.87 g. These approximate intervals condition on fitted models and assume sufficiently independent observations. No post-test tuning was performed.
 
-These are development comparisons, not final-test results, universal algorithm rankings or causal findings. Large errors remain visible. Classification/regression predictors, losses, fitting procedures, metrics and the distinction between fitting and hyperparameter selection are explained in the notebook. Clustering and final testing remain outstanding for the January submission. Personal learning reflections require the author's own review.
+PCA retains 88.57% of scaled development variance in two components. K-means fits all four scaled inputs without labels: three teaching groups (not an optimal k claim), seed 42, ten initialisations. Group sizes are 108, 98 and 67; silhouette is 0.459. These are descriptive quantities, not prediction accuracy.
 
 ## Reports and delivery
 
-PRDL explains the problem, methods and results. MLLB explains the code, tools and reproduction steps. Both reports link to this repository:
-
-https://github.com/marcosrobinat2/penguins-ml-submission
-
-The submission includes the two executed notebooks, original CSV and guide alongside the two report PDFs. A repository link does not replace the code files required for MLLB. Reports, course material, credentials and local environments are not stored in this repository. The working Drive and Overleaf files have separate access controls.
+PRDL develops formulation and interpretation; MLLB explains code and reproduction. Both link to this public repository. The delivery package includes three executed notebooks, original CSV, this guide and two PDFs. Reports, teaching materials, environments and credentials remain outside GitHub. Personal learning reflections must be written by the author; no university submission has been made automatically.
 
 ## Data provenance and attribution
 
