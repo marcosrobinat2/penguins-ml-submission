@@ -1,48 +1,46 @@
 # Palmer Penguins — PRDL and MLLB
 
-A small, didactic classical machine-learning project. The priority is understanding data, fitting, hyperparameter selection and evaluation.
+One didactic machine-learning study: data understanding, species classification, mass regression and descriptive clustering. The priority is understanding what each algorithm learns and how its predictions are evaluated.
 
-## Read and run
+## Notebooks
 
-1. [Understanding and EDA](01_understanding_and_eda.ipynb): variables, data quality, distributions, correlations and Simpson's paradox.
-2. [Supervised learning](02_supervised_learning.ipynb): initial fixed models, regression, KNN and Random Forest with formulas, settings and worked prediction inspections, nested validation, final test and uncertainty.
-3. [Unsupervised learning](03_unsupervised_learning.ipynb): standardisation, PCA and K-means; species is excluded from the unsupervised fit and added for interpretation; the inherited split was stratified by species.
+1. [Understanding and EDA](01_understanding_and_eda.ipynb): all variables, data quality, distributions, correlations and Simpson's paradox.
+2. [Supervised learning](02_supervised_learning.ipynb): shared methodology; logistic regression, decision tree, linear SVM, KNN and Random Forest; joint assessment; regression; reserved-test evaluation and uncertainty.
+3. [Unsupervised learning](03_unsupervised_learning.ipynb): scaling, PCA and K-means on development measurements, without species in fitting.
 
-Each notebook runs independently on CPU in Colab or VS Code/Jupyter. Download the files. In Colab upload a notebook, run from the top and upload the unchanged penguins.csv when prompted. In Jupyter place the CSV in the working directory. Libraries: pandas, NumPy, Matplotlib, scikit-learn and SciPy. Runtime versions are printed. Saved outputs do not recreate variables after a restart.
+Every notebook runs independently on CPU in Colab or VS Code/Jupyter. Place the unchanged penguins.csv in the working directory, or upload it when Colab prompts. Run from the top after each kernel restart. Packages: pandas, NumPy, Matplotlib, scikit-learn and SciPy. Saved outputs do not recreate variables.
 
-## Verified ML study — reviewed 4 November 2026
+## Common evaluation methodology
 
-The unchanged source has 344 observations and eight columns. A fixed species-stratified 80/20 split, seed 42, gives 275 development and 69 test observations. Complete-measurement development views use 273 rows; source rows 3 and 271 are excluded from those views only. Missing sex excludes no otherwise usable row. No values or extremes are changed.
+The source has 344 rows and eight columns. The original species-stratified split (seed 42) gives 275 development and 69 reserved-test observations. Complete-measurement development views use 273 rows; source IDs 3 and 271 are excluded from those views only. Missing sex alone excludes no row. No CSV value or recorded extreme is changed.
 
-Initial fixed comparisons and a limited depth search remain labelled development exercises. The extension uses five outer stratified folds and three inner stratified folds to select settings inside assessment. All scaling stays in pipelines. Small fixed searches compare logistic regression, linear SVM, a decision tree, KNN and a 100-tree Random Forest. Regression compares a median reference and untuned OLS using a separate five-fold KFold list.
+All five classifier families use the same five outer stratified folds and three inner stratified folds for setting selection. Scaling remains inside pipelines. The majority reference uses the same outer held-out rows. Each family is selected, fitted and assessed under this protocol.
 
-| Procedure | Mean external-fold macro-F1 |
+| Classifier family | Mean outer-fold macro-F1 |
 |---|---:|
 | Logistic regression | 0.9812 |
-| Linear SVM | 0.9815 |
 | Decision tree | 0.9052 |
+| Linear SVM | 0.9815 |
 | KNN | 0.9812 |
 | Random Forest | 0.9483 |
 
-Small differences do not show superiority among leading families. The pre-test rule selected linear SVM by highest mean external-fold F1; a three-fold development search then chose C=10. Development was already explored; nested CV does not erase that history. Test rows never enter fitting or selection.
+Mean fold F1 differs from pooled OOF F1; both are labelled in the notebook. The small differences between logistic regression, SVM and KNN do not establish significant superiority. Development exploration and selecting a family from its outer score limit independence. The selection rule was fixed before test access; a three-fold development search selected C=10 for linear SVM, followed by refitting on eligible development rows.
 
-All 69 test rows meet the eligibility rule. Final SVM accuracy is 68/69 (98.55%), macro-F1 0.9829; the majority reference is 30/69 (43.48%). The SVM Wilson 95% accuracy interval is 92.24–99.74%. A single pre-specified exact McNemar comparison against the majority reference uses 39/1 discordant pairs, p=7.46e-11. This does not compare SVM against logistic/KNN or test equal macro-F1.
+Regression compares a fit-median reference with untuned OLS using three inputs (mass is removed from predictors) and a separate five-fold KFold list. Development OOF OLS MAE is 325.46 g versus 679.17 g for the median reference.
 
-OLS test MAE is 276.83 g, RMSE 348.58 g and R-squared 0.803, versus median-reference MAE 644.57 g. A 5,000-resample paired row bootstrap, seed 42, gives a percentile 95% OLS-MAE interval of 228.37–326.65 g and a reference-minus-OLS MAE interval of 249.68–484.87 g. These approximate intervals condition on fitted models and assume sufficiently independent observations. No post-test tuning was performed.
+## Reserved-test assessment and descriptive profiles
 
-PCA retains 88.57% of scaled development variance in two components. K-means fits all four scaled inputs without labels: three teaching groups (not an optimal k claim), seed 42, ten initialisations. Group sizes are 108, 98 and 67; silhouette is 0.459. These are descriptive quantities, not prediction accuracy.
+All 69 reserved observations meet the required-variable rules. Selected SVM accuracy is 68/69 (98.55%), macro-F1 0.9829; the majority reference is 30/69. The SVM Wilson 95% accuracy interval is 92.24–99.74%. One predeclared exact McNemar comparison against the majority reference gives 39/1 discordant pairs, p=7.46e-11; this does not compare the leading measurement-based classifiers.
 
-## Understanding KNN and Random Forest
+OLS test MAE is 276.83 g, RMSE 348.58 g and R-squared 0.803, versus median-reference MAE 644.57 g. A 5,000-resample paired row bootstrap gives a conditional percentile 95% OLS-MAE interval of 228.37–326.65 g and an MAE-reduction interval of 249.68–484.87 g. Intervals use working sampling assumptions, do not model the entire stratified collection design and do not include refitting uncertainty. No test-based model revision is performed.
 
-Section 31 of notebook 02 explains both methods, what fit stores or learns, their hyperparameters, scaling, limits and the distinction between fitting and selection. Section 32.1 traces a held-out KNN query through fitted scaling, four-input distances, neighbour labels and class proportions. Section 32.2 inspects bootstrap samples and verifies that the mean probability vector of all 100 trees equals RandomForestClassifier.predict_proba. Scikit-learn averages probabilities; this need not equal hard-label majority voting. These inspections reuse outer-round-1 fitted estimators and perform no additional fits. The existing searches, metrics and final selection are unchanged.
+Two PCA components retain 88.57% of standardised development variance. K-means fits all four scaled measurements: three teaching groups, not a claimed optimal k, with sizes 108/98/67 and silhouette 0.459. Species is used for the inherited allocation and later interpretation, never for fitted scaler/PCA/clustering or choosing their settings.
 
-## Coherence and reproducibility review
+## Explanation and delivery
 
-All three notebooks were re-executed independently on 4 November 2026. Split IDs agree across notebooks. Independent calculations verify confusion/F1 arithmetic, first-fold logistic softmax probabilities, NumPy OLS, Wilson and paired-test arithmetic, PCA variance ratios, K-means inertia and silhouette. Earlier pending-work statements have been corrected. Initial fixed comparisons, nested development assessment and final-test scores are distinct. The uncertainty intervals are working approximations conditional on fitted models and do not model the full species-stratified collection design. Personal reflection remains for the author.
+The five classifiers have sibling model sections in notebook 02 and both reports. A common fitting loop exposes selection, fit and held-out prediction. First-outer-round fitted models are inspected without extra fits: logistic coefficients/softmax, tree/Gini rules, SVM support observations, KNN neighbours and forest bootstrap/probability averaging. Reports explain scientific interpretation (PRDL) and code/reproduction (MLLB).
 
-## Reports and delivery
-
-PRDL develops formulation and interpretation; MLLB explains code and reproduction. Both link to this public repository. The delivery package includes three executed notebooks, original CSV, this guide and two PDFs. Reports, teaching materials, environments and credentials remain outside GitHub. Personal learning reflections must be written by the author; no university submission has been made automatically.
+The package contains three executed notebooks, the original CSV, this guide and two report PDFs. Reports and teaching materials are outside this public repository. Personal learning reflections must be written by the author. No university-platform submission is made automatically.
 
 ## Data provenance and attribution
 
